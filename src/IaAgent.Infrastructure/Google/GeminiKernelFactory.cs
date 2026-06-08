@@ -9,7 +9,8 @@ namespace IaAgent.Infrastructure.Google;
 public sealed class GeminiOptions
 {
     public string ApiKey { get; set; } = string.Empty;
-    public string ModelId { get; set; } = "gemini-2.0-flash";
+    public string Model { get; set; } = "gemini-3.1-flash-lite-preview";
+    public string BaseUrl { get; set; } = "https://generativelanguage.googleapis.com/";
 }
 
 public sealed class GeminiKernelFactory : IKernelFactory
@@ -31,9 +32,14 @@ public sealed class GeminiKernelFactory : IKernelFactory
 
         var builder = Kernel.CreateBuilder();
 
+        HttpClient? httpClient = !string.IsNullOrEmpty(_options.BaseUrl)
+            ? new HttpClient { BaseAddress = new Uri(_options.BaseUrl) }
+            : null;
+
         builder.AddGoogleAIGeminiChatCompletion(
-            modelId: _options.ModelId,
-            apiKey: _options.ApiKey);
+            modelId: _options.Model,
+            apiKey: _options.ApiKey,
+            httpClient: httpClient);
 
         return builder.Build();
     }
