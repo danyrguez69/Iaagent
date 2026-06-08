@@ -1,6 +1,6 @@
 using IaAgent.Application.Ports;
 using IaAgent.Infrastructure.Adapters;
-using IaAgent.Infrastructure.Claude;
+using IaAgent.Infrastructure.Google;
 using IaAgent.Infrastructure.Http.Resiliency;
 using IaAgent.Infrastructure.Persistence;
 using IaAgent.Infrastructure.Persistence.Repositories;
@@ -42,11 +42,11 @@ public static class InfrastructureExtensions
         services.AddScoped<IChinaMarketPort, AliExpressAdapter>();
         services.AddScoped<IExchangeRatePort, ExchangeRateAdapter>();
 
-        // Kernel Factory (Claude API via Anthropic)
-        services.AddSingleton<IKernelFactory, AnthropicKernelFactory>();
+        // Kernel Factory (Google AI Gemini — tier gratuito)
+        services.AddSingleton<IKernelFactory, GeminiKernelFactory>();
 
         // Configuración
-        services.Configure<AnthropicOptions>(configuration.GetSection("Anthropic"));
+        services.Configure<GeminiOptions>(configuration.GetSection("GoogleAI"));
         services.Configure<MercadoLibreOptions>(configuration.GetSection("MercadoLibre"));
         services.Configure<AliExpressOptions>(configuration.GetSection("AliExpress"));
 

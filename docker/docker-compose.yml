@@ -8,9 +8,9 @@ services:
     container_name: iaagent_arbitrage
     restart: unless-stopped
     environment:
-      # === Claude API (Anthropic) ===
-      - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
-      - Anthropic__ModelId=${ANTHROPIC_MODEL:-claude-sonnet-4-5}
+      # === Google AI (Gemini — tier gratuito) ===
+      - GoogleAI__ApiKey=${GOOGLE_AI_API_KEY}
+      - GoogleAI__ModelId=${GOOGLE_AI_MODEL:-gemini-2.0-flash}
 
       # === MercadoLibre Chile ===
       - MercadoLibre__AppId=${ML_APP_ID}
