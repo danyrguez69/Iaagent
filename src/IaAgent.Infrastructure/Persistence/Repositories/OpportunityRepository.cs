@@ -22,14 +22,17 @@ public sealed class OpportunityRepository : IOpportunityRepository
             .OrderByDescending(o => o.DetectedAt)
             .ToListAsync(ct);
 
-    public async Task<List<MarketOpportunity>> GetTopByDemandScoreAsync(int count, CancellationToken ct = default) =>
-        await _db.Opportunities
+    public async Task<List<MarketOpportunity>> GetTopByDemandScoreAsync(int count, CancellationToken ct = default)
+    {
+        // SQLite no soporta decimal en ORDER BY — traemos al cliente y ordenamos en memoria
+        var all = await _db.Opportunities
             .Include(o => o.ChineseProducts)
             .Include(o => o.Calculation)
             .Where(o => o.Status == OpportunityStatus.Detected || o.Status == OpportunityStatus.AnalyzingChina)
-            .OrderByDescending(o => o.DemandScore)
-            .Take(count)
             .ToListAsync(ct);
+
+        return all.OrderByDescending(o => o.DemandScore).Take(count).ToList();
+    }
 
     public async Task AddAsync(MarketOpportunity opportunity, CancellationToken ct = default) =>
         await _db.Opportunities.AddAsync(opportunity, ct);

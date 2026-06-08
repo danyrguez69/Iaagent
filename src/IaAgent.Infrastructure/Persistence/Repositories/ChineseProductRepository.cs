@@ -10,11 +10,15 @@ public sealed class ChineseProductRepository : IChineseProductRepository
 
     public ChineseProductRepository(ArbitrageDbContext db) => _db = db;
 
-    public async Task<List<ChineseProduct>> GetByOpportunityIdAsync(Guid opportunityId, CancellationToken ct = default) =>
-        await _db.ChineseProducts
+    public async Task<List<ChineseProduct>> GetByOpportunityIdAsync(Guid opportunityId, CancellationToken ct = default)
+    {
+        // SQLite no soporta decimal en ORDER BY — ordenamos en memoria
+        var products = await _db.ChineseProducts
             .Where(p => p.OpportunityId == opportunityId)
-            .OrderByDescending(p => p.SupplierRating)
             .ToListAsync(ct);
+
+        return products.OrderByDescending(p => p.SupplierRating).ToList();
+    }
 
     public async Task AddRangeAsync(List<ChineseProduct> products, CancellationToken ct = default) =>
         await _db.ChineseProducts.AddRangeAsync(products, ct);

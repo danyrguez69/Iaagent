@@ -33,6 +33,10 @@ public sealed class MercadoLibreAdapter : IMercadoLibrePort
         _options = options.Value;
         _logger = logger;
         _http.BaseAddress = new Uri(ChileImportConstants.MercadoLibreBaseUrl);
+        _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent",
+            "Mozilla/5.0 (compatible; IaAgent/1.0; +https://taskingweb.cl)");
+        // Precargar el token si ya existe en config
+        SetAuthHeader();
     }
 
     public async Task<List<MarketOpportunity>> GetTrendingProductsAsync(
@@ -40,6 +44,7 @@ public sealed class MercadoLibreAdapter : IMercadoLibrePort
     {
         try
         {
+            SetAuthHeader();
             var response = await _http.GetStringAsync(
                 $"/trends/{ChileImportConstants.MercadoLibreChileSiteId}/{categoryId}", ct);
 
@@ -74,6 +79,7 @@ public sealed class MercadoLibreAdapter : IMercadoLibrePort
     {
         try
         {
+            SetAuthHeader();
             var url = $"/sites/{ChileImportConstants.MercadoLibreChileSiteId}/search" +
                       $"?q={Uri.EscapeDataString(query)}&sort=sold_quantity_desc&limit={limit}";
 
@@ -102,6 +108,7 @@ public sealed class MercadoLibreAdapter : IMercadoLibrePort
     {
         try
         {
+            SetAuthHeader();
             var response = await _http.GetStringAsync($"/items/{itemId}", ct);
             using var doc = JsonDocument.Parse(response);
 
