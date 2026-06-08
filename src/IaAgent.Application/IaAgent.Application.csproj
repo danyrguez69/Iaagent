@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\IaAgent.Domain\IaAgent.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.30.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.30.0-preview" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Suprimir warnings de APIs experimentales de Semantic Kernel Agents -->
+    <NoWarn>$(NoWarn);SKEXP0001;SKEXP0010;SKEXP0101;SKEXP0110</NoWarn>
+  </PropertyGroup>
+
+
+  <!-- Copiar los prompts al directorio de salida para que los agentes puedan leerlos en runtime -->
+  <ItemGroup>
+    <Content Include="Prompts\**\*.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

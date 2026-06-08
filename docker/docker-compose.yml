@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  iaagent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: iaagent_arbitrage
+    restart: unless-stopped
+    environment:
+      # === Claude API (Anthropic) ===
+      - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
+      - Anthropic__ModelId=${ANTHROPIC_MODEL:-claude-sonnet-4-5}
+
+      # === MercadoLibre Chile ===
+      - MercadoLibre__AppId=${ML_APP_ID}
+      - MercadoLibre__AppSecret=${ML_APP_SECRET}
+      - MercadoLibre__AccessToken=${ML_ACCESS_TOKEN}
+      - MercadoLibre__RefreshToken=${ML_REFRESH_TOKEN}
+      - MercadoLibre__UserId=${ML_USER_ID}
+
+      # === AliExpress Affiliate API ===
+      - AliExpress__AppKey=${AE_APP_KEY}
+      - AliExpress__AppSecret=${AE_APP_SECRET}
+      - AliExpress__AccessToken=${AE_ACCESS_TOKEN}
+
+      # === Base de datos ===
+      - ConnectionStrings__ArbitrageDb=Data Source=/data/arbitrage.db
+
+      # === Configuración del Pipeline ===
+      - Pipeline__RunIntervalHours=${PIPELINE_INTERVAL_HOURS:-6}
+      - Pipeline__MaxOpportunitiesPerRun=${MAX_OPPORTUNITIES:-10}
+      - Pipeline__MinNetMarginPct=${MIN_MARGIN_PCT:-25}
+
+      # === Logging ===
+      - Serilog__MinimumLevel__Default=${LOG_LEVEL:-Information}
+
+    volumes:
+      - arbitrage_data:/data
+      - arbitrage_logs:/app/logs
+
+    networks:
+      - iaagent_network
+
+    healthcheck:
+      test: ["CMD", "test", "-f", "/data/arbitrage.db"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  arbitrage_data:
+    driver: local
+  arbitrage_logs:
+    driver: local
+
+networks:
+  iaagent_network:
+    driver: bridge
