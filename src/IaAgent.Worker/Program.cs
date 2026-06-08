@@ -53,6 +53,16 @@ try
 
     var host = builder.Build();
 
+    // Asegurar que el directorio de la base de datos exista antes de migrar
+    var connString = builder.Configuration.GetConnectionString("ArbitrageDb") ?? "Data Source=arbitrage.db";
+    var dbPath = connString.Replace("Data Source=", "").Split(';')[0].Trim();
+    var dbDir = Path.GetDirectoryName(Path.GetFullPath(dbPath));
+    if (!string.IsNullOrEmpty(dbDir) && !Directory.Exists(dbDir))
+    {
+        Directory.CreateDirectory(dbDir);
+        Log.Information("Directorio de base de datos creado: {Dir}", dbDir);
+    }
+
     // Ejecutar migraciones de EF Core al arrancar
     using (var scope = host.Services.CreateScope())
     {
